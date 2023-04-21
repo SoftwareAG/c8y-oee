@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+help() {
+  cat <<EOF
+List OEE profiles
+
+Usage:
+    c8y oee profiles list
+
+Examples:
+    c8y oee profiles list
+    # List OEE profiles
+EOF
+}
+
+REST_ARGS=()
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -h|--help)
+            help
+            exit 0
+            ;;
+
+        *)
+            REST_ARGS+=("$1")
+            ;;
+    esac
+    shift
+done
+
+set -- "${REST_ARGS[@]}"
+
+c8y api GET service/oee-bundle/configurationmanager/2/configuration "$@"

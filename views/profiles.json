@@ -1,0 +1,18 @@
+{
+    "version": "1",
+    "definitions": [
+        {
+            "name": "datapoint",
+            "type": "c8y_Kpi",
+            "priority": 400,
+            "columns": [
+                "profileId:id",
+                "name",
+                "locationId",
+                "type",
+                "status",
+                "entityID:deviceId"
+            ]
+        }
+    ]
+}

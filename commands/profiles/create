@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+help() {
+  cat <<EOF
+Create an OEE profile
+
+Usage:
+    c8y oee profiles create --template
+
+Examples:
+    c8y oee profiles list
+    # List OEE profiles
+EOF
+}
+
+REST_ARGS=()
+TEMPLATE=
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --template)
+            TEMPLATE="$2"
+            shift
+            ;;
+
+        -h|--help)
+            help
+            exit 0
+            ;;
+
+        *)
+            REST_ARGS+=("$1")
+            ;;
+    esac
+    shift
+done
+
+set -- "${REST_ARGS[@]}"
+
+if [ -z "$TEMPLATE" ]; then
+    help
+    exit 1
+fi
+
+c8y api POST service/oee-bundle/configurationmanager/2/configuration --template "$TEMPLATE"  "$@"
