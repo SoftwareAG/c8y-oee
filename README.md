@@ -4,7 +4,7 @@
 
 go-c8y-cli extension to provide commands for the OEE app.
 
-https://cumulocity.com/api/oee/#operation/getProductionPlanList
+Checkout the [Official API Documentation](https://cumulocity.com/api/oee/#operation/getProductionPlanList) for more details.
 
 ## What is included?
 
@@ -13,7 +13,7 @@ https://cumulocity.com/api/oee/#operation/getProductionPlanList
 |Aliases|🔲||
 |Commands|✅|OEE commands to manage and view profiles and plant data|
 |Templates|✅|OEE specific templates|
-|Views|✅|Custom device views|
+|Views|✅|Custom OEE views|
 
 ## Install
 

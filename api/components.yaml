@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/extensionCommands.json
+---
+group:
+  name: components
+  description: OEE Components
+
+commands:
+  - name: get
+    description: Get all OEE components
+    descriptionLong: This service will return information about all installed OEE components, e.g. oee-bundle, apama-oeeapp and OEE (the UI).
+    method: GET
+    path: service/oee-bundle/components
+
+  - name: get
+    description: Get a specific OEE components
+    descriptionLong: This service will return information about an installed OEE component, e.g. oee-bundle, apama-oeeapp or OEE (the UI).
+    method: GET
+    path: service/oee-bundle/components/{component}
+    pathParameters:
+      - name: component
+        type: string
+        description: Component name. e.g. oee-bundle
+        pipeline: true

@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 help() {
   cat <<EOF
-List OEE profiles
+Generate a custom report about the status
 
 Usage:
-    c8y oee profiles list
+    c8y oee report create
 
 Examples:
-    c8y oee profiles list
-    # List OEE profiles
+    $ c8y oee report create
+    Create an overview report
 EOF
 }
 

@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/extensionCommands.json
+---
+group:
+  name: productionplan
+  description: OEE Production plan
+
+commands:
+  - name: get
+    description: Get productionplan
+    descriptionLong: Get the production plan for a device
+    method: GET
+    path: service/oee-bundle/mes/productionplanlist/{device}
+    pathParameters:
+      - name: device
+        type: string
+        description: Device
+        pipeline: true
+
+  - name: delete
+    description: Delete productionplan
+    descriptionLong: Delete the Shiftplan for the given location
+    method: DELETE
+    path: service/oee-bundle/mes/productionplanlist/{id}
+    pathParameters:
+      - name: id
+        type: string
+        description: Location id
+        pipeline: true
+
+  - name: update
+    description: Add or update productionplan
+    descriptionLong: Add or update the Shiftplan for the location defined in the Shiftplan. If a Shiftplan exists for the given location, the new Shiftplan will be merged internally and obsolete Timeslots will be removed. The resulting Shiftplan will then be sent to the Apama service.
+    method: PUT
+    path: service/oee-bundle/mes/productionplanlist
+    body:
+      - name: device
+        property: deviceId
+        type: string
+        description: Device
+        pipeline: true
+
+      # - name: tenantId
+      #   type: tenant
+      #   description: tenant Id (defaults to current tenant)
+
+      - name: idealCycleTime
+        type: integer
+        property: productionPlans.0.idealCycleTime
+        description: the number of milliseconds required to produce one item
+
+      - name: slotStart
+        type: datetime
+        property: productionPlans.0.timeslot.slotStart
+        description: SlotStart
+
+      - name: slotType
+        type: string
+        property: productionPlans.0.timeslot.slotType
+        description: slotType
+        validationSet:
+          - PRODUCTION
+          - MAINTENANCE
+
+      - name: slotEnd
+        type: datetime
+        property: productionPlans.0.timeslot.slotEnd
+        description: slotEnd

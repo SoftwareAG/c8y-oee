@@ -1,0 +1,97 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/extensionCommands.json
+---
+group:
+  name: profiles
+  description: OEE profiles/configurations
+
+commands:
+  - name: list
+    description: Get all profiles
+    method: GET
+    path: service/oee-bundle/configurationmanager/2/configuration
+
+  - name: get
+    description: Get profile
+    descriptionLong: Get the profile with the given configurationId
+    method: GET
+    path: service/oee-bundle/configurationmanager/2/configuration/{id}
+    pathParameters:
+      - name: id
+        type: string
+        description: Profile/Configuration id
+        pipeline: true
+
+  - name: delete
+    description: Delete profile
+    method: DELETE
+    path: service/oee-bundle/configurationmanager/2/configuration/{id}
+    pathParameters:
+      - name: id
+        type: string
+        description: Profile/Configuration id
+        pipeline: true
+
+  - name: create
+    description: Create profile
+    method: POST
+    path: service/oee-bundle/configurationmanager/2/configuration
+    body:
+      - name: data
+        type: json
+        description: Custom data
+
+  - name: update
+    description: Update profile
+    descriptionLong: Update
+    method: PUT
+    path: service/oee-bundle/configurationmanager/2/configuration/{id}
+    pathParameters:
+      - name: id
+        type: string
+        description: Profile/Configuration id
+        pipeline: true
+    body:
+      - name: name
+        type: string
+        description: Profile name
+
+      - name: type
+        type: string
+        description: Profile type
+        validationSet:
+          - MACHINE
+          - LINE
+
+      - name: deviceId
+        type: '[]device'
+        description: Device ID
+
+      # - name: tenantId
+      #   type: tenant
+      #   description: tenant Id (defaults to current tenant)
+      
+      - name: amountUnit
+        type: string
+        description: Amount unit
+
+      - name: external
+        type: boolean
+        description: External
+
+      - name: testConfiguration
+        property: testConfiguration
+        type: boolean
+        description: Test profile/configuration
+
+      - name: status
+        type: string
+        description: Status
+        validationSet:
+          - ACTIVE
+          - INACTIVE
+          - INCOMPLETE
+
+  # - name: create
+  #   method: 
+  #   description: 
+  #   path: 

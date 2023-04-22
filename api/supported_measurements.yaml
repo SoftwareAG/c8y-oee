@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/extensionCommands.json
+---
+group:
+  name: supportedmeasurements
+  description: OEE supported measurements
+
+commands:
+  - name: list
+    description: Get all supported measurements for the device
+    descriptionLong: This service will take the deviceId as input and return the all supported measurement descriptors.
+    method: GET
+    path: service/oee-bundle/supportedmeasurements/{device}
+    pathParameters:
+      - name: device
+        type: string
+        description: Device
+        pipeline: true
