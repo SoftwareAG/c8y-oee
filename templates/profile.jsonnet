@@ -1,6 +1,5 @@
 {
   "name": "Simulator Hi Frequency Availability - 1",
-  "deviceId": "75273047",
   "amountUnit": "",
   "locationId": "Matrix",
   "subscriptions": [
@@ -81,7 +80,6 @@
   ],
   "status": "ACTIVE",
   "testConfiguration": false,
-  "uid": "t617202780/",
   "external": false,
   "idealCycleAmount": "",
   "alarms": [],

@@ -1,0 +1,65 @@
+{
+    "version": "1",
+    "definitions": [
+        {
+            "name": "profile",
+            "priority": 400,
+            "requestPath": "/configurationmanager/2/configuration",
+            "columns": [
+                "profileId:id",
+                "name",
+                "locationId",
+                "type",
+                "status",
+                "entityID:deviceId"
+            ]
+        },
+        {
+            "name": "productionplan",
+            "priority": 400,
+            "requestPath": "/mes/productionplanlist/\\d+",
+            "columns": [
+                "idealCycleTime",
+                "timeslot.active",
+                "timeslot.duration",
+                "timeslot.slotType",
+                "timeslot.slotStart",
+                "timeslot.slotEnd",
+                "timeslot.description",
+                "timeslot.production"
+            ]
+        },
+        {
+            "name": "shiftplan",
+            "priority": 400,
+            "requestPath": "/mes/shiftplan/\\w+",
+            "columns": [
+                "active",
+                "id",
+                "description",
+                "duration",
+                "production",
+                "slotType",
+                "slotStart",
+                "slotEnd",
+                "slotRecurrence.end",
+                "slotRecurrence.endDate",
+                "slotRecurrence.weekdays.*"
+            ]
+        },
+        {
+            "name": "oeeObject",
+            "priority": 400,
+            "fragments": ["isISAObject"],
+            "columns": [
+                "id",
+                "type",
+                "description",
+                "detailedDescription",
+                "oeetarget",
+                "orderByIndex",
+                "owner"
+            ]
+        }
+    ]
+}

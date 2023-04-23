@@ -10,9 +10,10 @@ commands:
     descriptionLong: Get the production plan for a device
     method: GET
     path: service/oee-bundle/mes/productionplanlist/{device}
+    collectionProperty: "productionPlans"
     pathParameters:
       - name: device
-        type: string
+        type: "[]device"
         description: Device
         pipeline: true
 
@@ -32,16 +33,17 @@ commands:
     descriptionLong: Add or update the Shiftplan for the location defined in the Shiftplan. If a Shiftplan exists for the given location, the new Shiftplan will be merged internally and obsolete Timeslots will be removed. The resulting Shiftplan will then be sent to the Apama service.
     method: PUT
     path: service/oee-bundle/mes/productionplanlist
+    collectionProperty: "productionPlans"
     body:
       - name: device
         property: deviceId
-        type: string
+        type: "[]device"
         description: Device
         pipeline: true
 
-      # - name: tenantId
-      #   type: tenant
-      #   description: tenant Id (defaults to current tenant)
+      - name: tenantId
+        type: tenant
+        description: tenant Id (defaults to current tenant)
 
       - name: idealCycleTime
         type: integer

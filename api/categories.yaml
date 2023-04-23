@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/extensionCommands.json
+---
+group:
+  name: categories
+  description: OEE calculation categories
+  skip: true
+
+commands:
+  - name: list
+    description: Get calculation categories
+    method: GET
+    path: inventory/managedObjects
+    # TODO: Nested arrays are currently not supported
+    # collectionProperty: managedObjects.#.categories
+    queryParameters:
+      - name: query
+        property: query
+        type: queryExpression
+        description: Query expression
+        children:
+          - name: description
+            type: string
+            description: Filter by description
+            format: (description eq '%s')
+
+          - name: type
+            type: stringStatic
+            description: ""
+            hidden: true
+            value: "type eq 'OEECategoryConfiguration'"
+
+          - name: orderBy
+            type: string
+            default: description
+            description: Order by. e.g. _id asc or name asc or creationTime.date desc

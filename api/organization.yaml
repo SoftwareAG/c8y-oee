@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/extensionCommands.json
+---
+group:
+  name: organization
+  description: OEE organization (Sites/Areas/lines)
+
+commands:
+  - name: list
+    description: Get area collection
+    method: GET
+    path: inventory/managedObjects
+    queryParameters:
+      - name: query
+        property: query
+        type: queryExpression
+        description: Query expression
+        children:
+          - name: description
+            type: string
+            description: Filter by description
+            format: (description eq '%s')
+
+          - name: isISAObject
+            type: stringStatic
+            description: ""
+            hidden: true
+            value: "has(isISAObject)"
+
+          - name: type
+            type: string
+            description: "Type"
+            format: (type eq '%s')
+            validationSet:
+              - SITE
+              - AREA
+              - LINE
+              - MACHINE
+
+          - name: targetMax
+            type: string
+            description: "Only include where target is less than or equal to a value"
+            format: (oeetarget le %s)
+
+          - name: targetMin
+            type: string
+            description: "Only include where target is greater than or equal to a value"
+            format: (oeetarget ge %s)
+
+          - name: orderBy
+            type: string
+            default: description
+            description: Order by. e.g. _id asc or name asc or creationTime.date desc

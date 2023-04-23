@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/extensionCommands.json
+---
+group:
+  name: devices
+  description: OEE devices
+
+commands:
+  - name: list
+    description: Get device collection
+    method: GET
+    path: inventory/managedObjects
+    queryParameters:
+      - name: query
+        property: q
+        type: queryExpression
+        description: Query expression
+        children:
+          - name: isNotMachineConfig
+            type: stringStatic
+            description: ""
+            hidden: true
+            value: "not(has(@com_adamos_oee_datamodel_MachineOEEConfiguration))"
+
+          - name: type
+            type: string
+            description: Filter by type
+            format: (type eq '%s')
+
+          - name: orderBy
+            type: string
+            default: name
+            description: Order by. e.g. _id asc or name asc or creationTime.date desc

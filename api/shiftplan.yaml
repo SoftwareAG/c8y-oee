@@ -10,6 +10,13 @@ commands:
     descriptionLong: Get the shift plan for a given location. Response is empty if no Shiftplan was supplied before via the putShiftplan method.
     method: GET
     path: service/oee-bundle/mes/shiftplan/{id}
+    collectionProperty: recurringTimeslots
+    exampleList:
+      - description: Get the shift plans for all locations
+        command: c8y oee locations list | c8y oee shiftplan get
+
+      - description: Get the shift plan for a specific location
+        command: c8y oee shiftplan get --id OneShiftLocation
     pathParameters:
       - name: id
         type: string
@@ -38,9 +45,9 @@ commands:
         description: the "machine location" as specified in the profile
         pipeline: true
 
-      # - name: tenantId
-      #   type: tenant
-      #   description: tenant Id (defaults to current tenant)
+      - name: tenantId
+        type: tenant
+        description: tenant Id (defaults to current tenant)
 
       - name: slotStart
         type: datetime

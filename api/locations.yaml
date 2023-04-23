@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/extensionCommands.json
+---
+group:
+  name: locations
+  description: OEE Locations
+
+commands:
+  - name: list
+    description: Get all locations
+    method: GET
+    path: service/oee-bundle/configurationmanager/2/location
+    exampleList:
+      - description: Get a list of locations
+        command: c8y oee locations list

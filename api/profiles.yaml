@@ -36,9 +36,13 @@ commands:
     method: POST
     path: service/oee-bundle/configurationmanager/2/configuration
     body:
-      - name: data
-        type: json
-        description: Custom data
+      - name: type
+        type: string
+        description: Type
+        default: MACHINE
+        validationSet:
+          - "MACHINE"
+          - "LINE"
 
   - name: update
     description: Update profile
@@ -66,9 +70,9 @@ commands:
         type: '[]device'
         description: Device ID
 
-      # - name: tenantId
-      #   type: tenant
-      #   description: tenant Id (defaults to current tenant)
+      - name: tenantId
+        type: tenant
+        description: tenant Id (defaults to current tenant)
       
       - name: amountUnit
         type: string
@@ -90,8 +94,3 @@ commands:
           - ACTIVE
           - INACTIVE
           - INCOMPLETE
-
-  # - name: create
-  #   method: 
-  #   description: 
-  #   path: 
