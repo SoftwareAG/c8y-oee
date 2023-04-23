@@ -60,6 +60,18 @@
                 "orderByIndex",
                 "owner"
             ]
+        },
+        {
+            "name": "component",
+            "priority": 400,
+            "requestPath": "service/oee-bundle/components",
+            "columns": [
+                "id",
+                "name",
+                "version",
+                "apiVersion",
+                "owner"
+            ]
         }
     ]
 }

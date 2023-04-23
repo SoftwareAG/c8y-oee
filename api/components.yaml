@@ -2,10 +2,10 @@
 ---
 group:
   name: components
-  description: OEE Components
+  description: OEE components
 
 commands:
-  - name: get
+  - name: list
     description: Get all OEE components
     descriptionLong: This service will return information about all installed OEE components, e.g. oee-bundle, apama-oeeapp and OEE (the UI).
     method: GET
@@ -15,9 +15,16 @@ commands:
     description: Get a specific OEE components
     descriptionLong: This service will return information about an installed OEE component, e.g. oee-bundle, apama-oeeapp or OEE (the UI).
     method: GET
-    path: service/oee-bundle/components/{component}
+    path: service/oee-bundle/components/{name}
+    exampleList:
+      - description: Get a component by name
+        command: c8y oee components get --name oee-bundle
+      - description: Get all components using pipeline
+        command: c8y oee components list | c8y oee components get
     pathParameters:
-      - name: component
+      - name: name
         type: string
         description: Component name. e.g. oee-bundle
         pipeline: true
+        pipelineAliases:
+          - "name"

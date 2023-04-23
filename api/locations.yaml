@@ -2,7 +2,7 @@
 ---
 group:
   name: locations
-  description: OEE Locations
+  description: OEE locations
 
 commands:
   - name: list

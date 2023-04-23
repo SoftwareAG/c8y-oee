@@ -2,7 +2,7 @@
 ---
 group:
   name: shiftplan
-  description: OEE Shiftplan
+  description: OEE shift plan
 
 commands:
   - name: get

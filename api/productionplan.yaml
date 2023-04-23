@@ -2,7 +2,7 @@
 ---
 group:
   name: productionplan
-  description: OEE Production plan
+  description: OEE production plan
 
 commands:
   - name: get
@@ -16,6 +16,9 @@ commands:
         type: "[]device"
         description: Device
         pipeline: true
+    exampleList:
+      - description: Get the production plans for each device
+        command: c8y oee devices list | c8y oee productionplan get
 
   - name: delete
     description: Delete productionplan
