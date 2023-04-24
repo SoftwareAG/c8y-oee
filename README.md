@@ -27,4 +27,7 @@ go install github.com/reubenmiller/go-c8y-cli/v2/cmd/c8y@93fb6a64efdc3b023ad9773
 export PATH=~/go/bin:"$PATH"
 
 c8y extension install reubenmiller/c8y-oee
+
+# List the available commands
+c8y oee
 ```
