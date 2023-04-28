@@ -1,4 +1,5 @@
 {
+    "$schema": "https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/views.json",
     "version": "1",
     "definitions": [
         {
