@@ -15,17 +15,60 @@ Checkout the [Official API Documentation](https://cumulocity.com/api/oee/#operat
 |Templates|✅|OEE specific templates|
 |Views|✅|Custom OEE views|
 
-## Install
+## Pre-requisite
 
-The extension can be installed using the following command.
+:rotating_light: Warning :rotating_light:
+
+This extension relies on an up-coming go-c8y-cli [extensions](https://github.com/reubenmiller/go-c8y-cli/blob/feat/extensions-manager/docs/go-c8y-cli/docs/concepts/extensions.md) feature which has not been officially released yet, so in order to try it out you will have to install the pre-release version via the following instructions.
+
+**Note:** Building `go-c8y-cli` requires go version ≥ 1.20.
+
+### Shell (bash/zsh/fish)
 
 ```sh
 # Install preview version where `c8y extension` is supported
 go install github.com/reubenmiller/go-c8y-cli/v2/cmd/c8y@93fb6a64efdc3b023ad9773458e3b98e01f73e8a
 
 # Add the go bin folder to your path variable (ideally add this to your shell profile (.zshrc for zsh or .bashrc for bash)
-export PATH=~/go/bin:"$PATH"
+export PATH="$(go env GOPATH)/bin:$PATH"
+```
 
+### PowerShell
+
+```powershell
+go install github.com/reubenmiller/go-c8y-cli/v2/cmd/c8y@93fb6a64efdc3b023ad9773458e3b98e01f73e8a
+
+if ($IsWindows) {
+    # Windows
+    $env:PATH = "$(go env GOPATH)/bin" + ";" + $env:PATH
+    Set-Alias c8y "$(go env GOPATH)/bin/c8y.exe"
+} else {
+    $env:PATH = "$(go env GOPATH)/bin" + ":" + $env:PATH
+    Set-Alias c8y "$(go env GOPATH)/bin/c8y"
+}
+```
+
+### Post-installation verification
+
+Once you have installed the pre-release version of **go-c8y-cli**, you can confirm that you have the correct version by running the following command:
+
+```sh
+c8y version
+```
+
+The version suffix should be the first part of the git commit id from the `go install` command, for example:
+
+```sh
+| branch         | version                                    |
+|----------------|--------------------------------------------|
+| (unknown)      | v2.22.5-0.20230423212102-93fb6a64efdc      |
+```
+
+## Install
+
+The extension can be installed using the following command.
+
+```sh
 c8y extension install reubenmiller/c8y-oee
 
 # List the available commands
