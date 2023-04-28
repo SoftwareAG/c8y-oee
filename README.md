@@ -39,7 +39,6 @@ go install github.com/reubenmiller/go-c8y-cli/v2/cmd/c8y@93fb6a64efdc3b023ad9773
 
 # Add the go bin folder to the path variable and set a powershell alias to it
 if ($IsWindows) {
-    # Windows
     $env:PATH = "$(go env GOPATH)/bin" + ";" + $env:PATH
     Set-Alias c8y "$(go env GOPATH)/bin/c8y.exe"
 } else {
