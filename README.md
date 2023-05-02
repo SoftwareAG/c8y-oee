@@ -26,7 +26,7 @@ This extension relies on an up-coming go-c8y-cli [extensions](https://github.com
 ### Shell (bash/zsh/fish)
 
 ```sh
-go install github.com/reubenmiller/go-c8y-cli/v2/cmd/c8y@93fb6a64efdc3b023ad9773458e3b98e01f73e8a
+go install github.com/reubenmiller/go-c8y-cli/v2/cmd/c8y@64dd3bd70b6b1114dca8dc15041466ab83bc5410
 
 # Add the go bin folder to your path variable (ideally add this to your shell profile (.zshrc for zsh or .bashrc for bash)
 export PATH="$(go env GOPATH)/bin:$PATH"
@@ -35,7 +35,7 @@ export PATH="$(go env GOPATH)/bin:$PATH"
 ### PowerShell
 
 ```powershell
-go install github.com/reubenmiller/go-c8y-cli/v2/cmd/c8y@93fb6a64efdc3b023ad9773458e3b98e01f73e8a
+go install github.com/reubenmiller/go-c8y-cli/v2/cmd/c8y@64dd3bd70b6b1114dca8dc15041466ab83bc5410
 
 # Add the go bin folder to the path variable and set a powershell alias to it
 if ($IsWindows) {
