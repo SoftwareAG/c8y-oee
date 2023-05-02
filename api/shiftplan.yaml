@@ -28,6 +28,9 @@ commands:
     descriptionLong: Delete the Shiftplan for the given location
     method: DELETE
     path: service/oee-bundle/mes/shiftplan/{id}
+    exampleList:
+      - description: Delete the shiftplan for a specific location
+        command: c8y oee shiftplan delete --id OneShiftLocation
     pathParameters:
       - name: id
         type: string
