@@ -6,20 +6,6 @@ create an user with global roles "OEE Admin" and "OEE Reader"
 EOF
 }
 
-# Read the credentials from the JSON file
-CREDENTIALS_FILE="./credentials.json"
-
-if [ ! -f "$CREDENTIALS_FILE" ]; then
-  echo "The credentials file $CREDENTIALS_FILE does not exist"
-  exit 1
-fi
-
-E2E_OEEADMIN_PASSWORD=$(jq -r '.E2E_OEEADMIN_PASSWORD' "$CREDENTIALS_FILE")
-C8Y_USER=$(jq -r '.C8Y_USER' "$CREDENTIALS_FILE")
-C8Y_HOST=$(jq -r '.C8Y_HOST' "$CREDENTIALS_FILE")
-C8Y_PASSWORD=$(jq -r '.C8Y_PASSWORD' "$CREDENTIALS_FILE")
-C8Y_TENANT=$(jq -r '.C8Y_TENANT' "$CREDENTIALS_FILE")
-
 export C8Y_SETTINGS_DEFAULTS_INSECURE='true'
 export C8Y_TENANT="$C8Y_TENANT"
 echo "Tenant ID : $C8Y_TENANT"
@@ -27,14 +13,12 @@ oeeadminUser=$(c8y users list --includeAll --username "oeeadmin" -o csv --select
 
 if [ -z "$oeeadminUser" ]; then
   echo "oeeadmin user was not detected, creating oeeadmin user."
-  sessionFile=$(c8y sessions create --type dev --username "$C8Y_USER" --host "$C8Y_HOST" --password "$C8Y_PASSWORD" --tenant "$C8Y_TENANT" --name "userCreation" --noStorage)
-  echo "Session File : $sessionFile"
 
   echo "Create oeeadmin and add to Admin, business groups"
-  c8y users create -f -n --userName "oeeadmin" --password "$E2E_OEEADMIN_PASSWORD" --email "dummy-oeeadmin@softwareag.com" --session "$sessionFile" --sessionPassword "$C8Y_PASSWORD" | \
-    c8y userreferences addUserToGroup -f --group "business" --session "$sessionFile" --sessionPassword "$C8Y_PASSWORD" | \
-    c8y userreferences addUserToGroup -f --group "OEE Admin" --session "$sessionFile" --sessionPassword "$C8Y_PASSWORD"| \
-    c8y userreferences addUserToGroup -f --group "OEE Reader" --session "$sessionFile" --sessionPassword "$C8Y_PASSWORD"
+  c8y users create -f -n --userName "oeeadmin" --password "123aA@456" --email "dummy-oeeadmin@softwareag.com" | \
+    c8y userreferences addUserToGroup -f --group "business"   | \
+    c8y userreferences addUserToGroup -f --group "OEE Admin"  | \
+    c8y userreferences addUserToGroup -f --group "OEE Reader"
 
 else
   echo "oeeadmin user was already detected on tenant, will not create oee* users."
