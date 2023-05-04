@@ -2,24 +2,75 @@
 
 help() {
   cat <<EOF
-create an user with global roles "OEE Admin" and "OEE Reader"
+Usage: $(basename "$0") [--username <username>] [--password <password>] [--email <email>]
+Ex: c8y oee \create_user --username abctest --password Password.123 --email dummy-oeeadmin@softwareag.com
+Create a user with global roles "OEE Admin" and "OEE Reader".
 EOF
 }
 
-export C8Y_SETTINGS_DEFAULTS_INSECURE='true'
-export C8Y_TENANT="$C8Y_TENANT"
-echo "Tenant ID : $C8Y_TENANT"
-oeeadminUser=$(c8y users list --includeAll --username "oeeadmin" -o csv --select "id" -n)
+echo "URL       :  $C8Y_HOST"
+echo "Tenant ID :  $C8Y_TENANT"
+echo "User      :  $C8Y_USER"
+
+# Set default values
+username="oeeadmin"
+password="Password.123"
+email="dummy-oeeadmin@softwareag.com"
+
+# Parse command-line options
+REST_ARGS=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      help
+      exit 0
+      ;;
+    --username)
+      if [ $# -gt 1 ]; then
+        username=$2
+        shift
+      else
+        echo "Option $1 requires an argument." >&2
+        exit 1
+      fi
+      ;;
+    --password)
+      if [ $# -gt 1 ]; then
+        password=$2
+        shift
+      else
+        echo "Option $1 requires an argument." >&2
+        exit 1
+      fi
+      ;;
+    --email)
+      if [ $# -gt 1 ]; then
+        email=$2
+        shift
+      else
+        echo "Option $1 requires an argument." >&2
+        exit 1
+      fi
+      ;;
+    *)
+      REST_ARGS+=("$1")
+      ;;
+  esac
+  shift
+done
+set -- "${REST_ARGS[@]}"
+
+oeeadminUser=$(c8y users list --includeAll --username "$username" -o csv --select "id" -n)
 
 if [ -z "$oeeadminUser" ]; then
-  echo "oeeadmin user was not detected, creating oeeadmin user."
+  echo "$username user was not detected, creating $username user."
 
-  echo "Create oeeadmin and add to Admin, business groups"
-  c8y users create -f -n --userName "oeeadmin" --password "123aA@456" --email "dummy-oeeadmin@softwareag.com" | \
+  echo "Create user $username and add to OEE Admin, OEE Reader, business groups"
+  c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
     c8y userreferences addUserToGroup -f --group "business"   | \
     c8y userreferences addUserToGroup -f --group "OEE Admin"  | \
     c8y userreferences addUserToGroup -f --group "OEE Reader"
 
 else
-  echo "oeeadmin user was already detected on tenant, will not create oee* users."
+  echo "$username user is already exist on tenant $C8Y_HOST."
 fi
