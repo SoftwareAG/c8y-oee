@@ -26,7 +26,7 @@ This extension relies on an up-coming go-c8y-cli [extensions](https://github.com
 ### Shell (bash/zsh/fish)
 
 ```sh
-go install github.com/reubenmiller/go-c8y-cli/v2/cmd/c8y@64dd3bd70b6b1114dca8dc15041466ab83bc5410
+go install github.com/reubenmiller/go-c8y-cli/v2/cmd/c8y@e25a3b0ba9b974346b1bf98c70300fb464a8add4
 
 # Add the go bin folder to your path variable (ideally add this to your shell profile (.zshrc for zsh or .bashrc for bash)
 export PATH="$(go env GOPATH)/bin:$PATH"
@@ -35,7 +35,7 @@ export PATH="$(go env GOPATH)/bin:$PATH"
 ### PowerShell
 
 ```powershell
-go install github.com/reubenmiller/go-c8y-cli/v2/cmd/c8y@64dd3bd70b6b1114dca8dc15041466ab83bc5410
+go install github.com/reubenmiller/go-c8y-cli/v2/cmd/c8y@e25a3b0ba9b974346b1bf98c70300fb464a8add4
 
 # Add the go bin folder to the path variable and set a powershell alias to it
 if ($IsWindows) {
@@ -60,7 +60,7 @@ The version suffix should be the first part of the git commit id from the `go in
 ```sh
 | branch         | version                                    |
 |----------------|--------------------------------------------|
-| (unknown)      | v2.22.5-0.20230423212102-93fb6a64efdc      |
+| (unknown)      | v2.22.5-0.20230504202920-e25a3b0ba9b9      |
 ```
 
 ## Install

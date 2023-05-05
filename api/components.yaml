@@ -28,3 +28,11 @@ commands:
         pipeline: true
         pipelineAliases:
           - "name"
+        completion:
+          type: external
+          command:
+            - c8y
+            - oee
+            - components
+            - list
+            - --select=name
