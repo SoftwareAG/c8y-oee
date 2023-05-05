@@ -2,9 +2,17 @@
 
 help() {
   cat <<EOF
-Usage: $(basename "$0") [--username <username>] [--password <password>] [--email <email>]
-Ex: c8y oee \create_user --username abctest --password Password.123 --email dummy-oeeadmin@softwareag.com
-Create a user with global roles "OEE Admin" and "OEE Reader".
+Usage: $(basename "$0") --username <username> --password <password> --email <email> --role <admin|reader|access>
+Arguments:
+  -u, --username  USERNAME  The username for the new user (required)
+  -p, --password  PASSWORD  The password for the new user ( Password must have at least 8 characters and no more than 32 and must contain only Latin characters) (required)
+  -e, --email     EMAIL     The email for the new user (required)
+  -r, --role      ROLE      The role for the new user (admin, reader, or access) (required)
+  -h, --help                Show this help message and exit
+
+Example usage:
+ c8y oee \create_user --username abctest --password Password.123 --email dummy-oeeadmin@softwareag.com --role admin
+Create a user with global roles "OEE Admin" and/ "business".
 EOF
 }
 
