@@ -2,7 +2,7 @@
 
 help() {
   cat <<EOF
-Usage: $(basename "$0") --username <username> --password <password> --email <email> --role <admin|reader|access>
+Usage: c8y oee \\$(basename "$0") --username <username> --password <password> --email <email> --role <admin|reader|access>
 Arguments:
   -u, --username  USERNAME  The username for the new user (required)
   -p, --password  PASSWORD  The password for the new user ( Password must have at least 8 characters and no more than 32 and must contain only Latin characters) (required)
@@ -12,13 +12,9 @@ Arguments:
 
 Example usage:
  c8y oee \create_user --username abctest --password Password.123 --email dummy-oeeadmin@softwareag.com --role admin
-Create a user with global roles "OEE Admin" and/ "business".
+=> Create a user with global roles "OEE Admin" and "business".
 EOF
 }
-
-echo "URL       :  $C8Y_HOST"
-echo "Tenant ID :  $C8Y_TENANT"
-echo "User      :  $C8Y_USER"
 
 # Parse command-line options
 REST_ARGS=()
@@ -88,6 +84,10 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
+
+echo "URL       :  $C8Y_HOST"
+echo "Tenant ID :  $C8Y_TENANT"
+echo "User      :  $C8Y_USER"
 
 # Check that the required arguments are present
 missing_args=()
