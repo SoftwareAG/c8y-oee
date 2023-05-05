@@ -47,6 +47,20 @@ while [ $# -gt 0 ]; do
         exit 1
       fi
       ;;
+    --role)
+      if [ $# -gt 1 ]; then
+        if [ "$2" == "admin" ] || [ "$2" == "reader" ] || [ "$2" == "access" ]; then
+          role=$2
+          shift
+        else
+          echo "Error: invalid role '$2'. Role must be: 'admin', 'reader', 'access'" >&2
+          exit 1
+        fi
+      else
+        echo "Option $1 requires an argument." >&2
+        exit 1
+      fi
+      ;;
     *)
       REST_ARGS+=("$1")
       ;;
@@ -70,6 +84,10 @@ if [[ -z $email ]]; then
   exit 1
 fi
 
+if [[ -z $role ]]; then
+  echo "Error: role is a required argument" >&2
+  exit 1
+fi
 set -- "${REST_ARGS[@]}"
 
 oeeadminUser=$(c8y users list --includeAll --username "$username" -o csv --select "id" -n)
@@ -77,11 +95,20 @@ oeeadminUser=$(c8y users list --includeAll --username "$username" -o csv --selec
 if [ -z "$oeeadminUser" ]; then
   echo "$username user was not detected, creating $username user."
 
-  echo "Create user $username and add to OEE Admin, OEE Reader, business groups"
-  c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
+  if [ "$role" == "admin" ]; then
+    c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
     c8y userreferences addUserToGroup -f --group "business"   | \
-    c8y userreferences addUserToGroup -f --group "OEE Admin"  | \
+    c8y userreferences addUserToGroup -f --group "OEE Admin"
+  elif [ "$role" == "reader" ]; then
+    c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
+    c8y userreferences addUserToGroup -f --group "business"   | \
     c8y userreferences addUserToGroup -f --group "OEE Reader"
+  elif [ "$role" == "access" ]; then
+    c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
+    c8y userreferences addUserToGroup -f --group "business"
+  fi
+
+  echo "Created $username user with permission $role successfully"
 
 else
   echo "$username user is already exist on tenant $C8Y_HOST."
