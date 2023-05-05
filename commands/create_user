@@ -20,7 +20,7 @@ while [ $# -gt 0 ]; do
       help
       exit 0
       ;;
-    --username)
+    -u|-username|--username)
       if [ $# -gt 1 ]; then
         username=$2
         shift
@@ -29,7 +29,7 @@ while [ $# -gt 0 ]; do
         exit 1
       fi
       ;;
-    --password)
+    -p|-password|--password)
       if [ $# -gt 1 ]; then
         password=$2
         shift
@@ -38,7 +38,7 @@ while [ $# -gt 0 ]; do
         exit 1
       fi
       ;;
-    --email)
+    -e|-email|--email)
       if [ $# -gt 1 ]; then
         email=$2
         shift
@@ -47,13 +47,26 @@ while [ $# -gt 0 ]; do
         exit 1
       fi
       ;;
-    --role)
+    -r|-role|--role)
       if [ $# -gt 1 ]; then
-        if [ "$2" == "admin" ] || [ "$2" == "reader" ] || [ "$2" == "access" ]; then
-          role=$2
-          shift
-        else
-          echo "Error: invalid role '$2'. Role must be: 'admin', 'reader', 'access'" >&2
+        valid_roles=("admin" "reader" "access")
+        role_arg="$2"
+        # Check if the role argument is valid
+        valid_role=false
+        for valid_role_name in "${valid_roles[@]}"; do
+          if [[ "$valid_role_name" == "$role_arg" ]]; then
+            role="$role_arg"
+            valid_role=true
+            break
+          fi
+        done
+
+        if ! $valid_role; then
+          invalid_role_message="Error: invalid role '$role_arg'. Role must be one of: ${valid_roles[0]}"
+          for (( i=1; i<${#valid_roles[@]}; i++ )); do
+            invalid_role_message+=", ${valid_roles[$i]}"
+          done
+          echo "$invalid_role_message" >&2
           exit 1
         fi
       else
@@ -69,25 +82,32 @@ while [ $# -gt 0 ]; do
 done
 
 # Check that the required arguments are present
+missing_args=()
 if [[ -z $username ]]; then
-  echo "Error: username is a required argument" >&2
-  exit 1
+  missing_args+=(username)
 fi
 
 if [[ -z $password ]]; then
-  echo "Error: password is a required argument" >&2
-  exit 1
+  missing_args+=(password)
 fi
 
 if [[ -z $email ]]; then
-  echo "Error: email is a required argument" >&2
-  exit 1
+  missing_args+=(email)
 fi
 
 if [[ -z $role ]]; then
-  echo "Error: role is a required argument" >&2
+  missing_args+=(role)
+fi
+
+if [[ ${#missing_args[@]} -gt 0 ]]; then
+  message="Error: Missing required arguments: ${missing_args[0]}"
+  for (( i=1; i<${#missing_args[@]}; i++ )); do
+    message+=", ${missing_args[$i]}"
+  done
+  echo "$message"
   exit 1
 fi
+
 set -- "${REST_ARGS[@]}"
 
 oeeadminUser=$(c8y users list --includeAll --username "$username" -o csv --select "id" -n)
@@ -96,16 +116,22 @@ if [ -z "$oeeadminUser" ]; then
   echo "$username user was not detected, creating $username user."
 
   if [ "$role" == "admin" ]; then
-    c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
-    c8y userreferences addUserToGroup -f --group "business"   | \
-    c8y userreferences addUserToGroup -f --group "OEE Admin"
+    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
+                c8y userreferences addUserToGroup -f --group "business"   | \
+                c8y userreferences addUserToGroup -f --group "OEE Admin" 2>&1)
   elif [ "$role" == "reader" ]; then
-    c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
-    c8y userreferences addUserToGroup -f --group "business"   | \
-    c8y userreferences addUserToGroup -f --group "OEE Reader"
+    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
+                c8y userreferences addUserToGroup -f --group "business"   | \
+                c8y userreferences addUserToGroup -f --group "OEE Reader" 2>&1)
   elif [ "$role" == "access" ]; then
-    c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
-    c8y userreferences addUserToGroup -f --group "business"
+    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
+                c8y userreferences addUserToGroup -f --group "business" 2>&1)
+  fi
+
+  output=$(c8y users getUserByName --name "$username" 2>&1)
+  if [[ $output == *"serverError"* ]]; then
+    echo "Error: Created $username user with permission $role failed." >&2
+    exit 1
   fi
 
   echo "Created $username user with permission $role successfully"
