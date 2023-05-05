@@ -12,11 +12,6 @@ echo "URL       :  $C8Y_HOST"
 echo "Tenant ID :  $C8Y_TENANT"
 echo "User      :  $C8Y_USER"
 
-# Set default values
-username="oeeadmin"
-password="Password.123"
-email="dummy-oeeadmin@softwareag.com"
-
 # Parse command-line options
 REST_ARGS=()
 while [ $# -gt 0 ]; do
@@ -58,6 +53,23 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
+
+# Check that the required arguments are present
+if [[ -z $username ]]; then
+  echo "Error: username is a required argument" >&2
+  exit 1
+fi
+
+if [[ -z $password ]]; then
+  echo "Error: password is a required argument" >&2
+  exit 1
+fi
+
+if [[ -z $email ]]; then
+  echo "Error: email is a required argument" >&2
+  exit 1
+fi
+
 set -- "${REST_ARGS[@]}"
 
 oeeadminUser=$(c8y users list --includeAll --username "$username" -o csv --select "id" -n)
