@@ -2,21 +2,25 @@
 
 help() {
   cat <<EOF
-Usage: c8y oee \\$(basename "$0") --username <username> --password <password> --email <email> --role <admin|reader|access>
-Arguments:
-  -u, --username  USERNAME  The username for the new user (required)
-  -p, --password  PASSWORD  The password for the new user ( Password must have at least 8 characters and no more than 32 and must contain only Latin characters) (required)
-  -e, --email     EMAIL     The email for the new user (required)
-  -r, --role      ROLE      The role for the new user (admin, reader, or access) (required)
-  -h, --help                Show this help message and exit
 
-Example usage:
- c8y oee \create_user --username abctest --password Password.123 --email dummy-oeeadmin@softwareag.com --role admin
-=> Create a user with global roles "OEE Admin" and "business".
+----------------------------------------------------------------------------------------------------------
+HELP MESSAGE:
+    Usage: c8y oee \\$(basename "$0") --username <username> --password <password> --email <email> --role <admin|reader|access>
+    Arguments:
+      -u, --username  USERNAME  The username for the new user (required)
+      -p, --password  PASSWORD  The password for the new user ( Password must have at least 8 characters and no more than 32 and must contain only Latin characters) (required)
+      -e, --email     EMAIL     The email for the new user (required)
+      -r, --role      ROLE      The role for the new user (admin, reader, or access) (required)
+      -h, --help                Show this help message and exit
+
+    Example usage:
+    Create a user with global roles "OEE Admin" and "business":
+        c8y oee \create_user --username abctest --password Password.123 --email dummy-oeeadmin@softwareag.com --role admin
+----------------------------------------------------------------------------------------------------------
+
 EOF
 }
 
-# Define the function
 check_user_groups_availability() {
   local user_group_list=("$@")
   for user_group in "${user_group_list[@]}"; do
@@ -43,6 +47,7 @@ while [ $# -gt 0 ]; do
         shift
       else
         echo "Option $1 requires an argument." >&2
+        help
         exit 1
       fi
       ;;
@@ -52,6 +57,7 @@ while [ $# -gt 0 ]; do
         shift
       else
         echo "Option $1 requires an argument." >&2
+        help
         exit 1
       fi
       ;;
@@ -61,6 +67,7 @@ while [ $# -gt 0 ]; do
         shift
       else
         echo "Option $1 requires an argument." >&2
+        help
         exit 1
       fi
       ;;
@@ -88,6 +95,7 @@ while [ $# -gt 0 ]; do
         fi
       else
         echo "Option $1 requires an argument." >&2
+        help
         exit 1
       fi
       ;;
@@ -125,7 +133,8 @@ if [[ ${#missing_args[@]} -gt 0 ]]; then
   for (( i=1; i<${#missing_args[@]}; i++ )); do
     message+=", ${missing_args[$i]}"
   done
-  echo "$message"
+  echo "$message" >&2
+  help
   exit 1
 fi
 
@@ -157,7 +166,7 @@ if [ -z "$c8y_User" ]; then
 
   output=$(c8y users getUserByName --name "$username" 2>&1)
   if [[ $output == *"serverError"* ]]; then
-    echo "$output"
+    echo "$output" >&2
     echo "Error: Created $username user with permission $role failed." >&2
     exit 1
   fi
