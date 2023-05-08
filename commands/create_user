@@ -164,9 +164,13 @@ if [ -z "$c8y_User" ]; then
                 c8y userreferences addUserToGroup -f --group "business" 2>&1)
   fi
 
+  # Check response if there is error
+  if [[ $response == *"serverError"* ]]; then
+    echo "$response" >&2
+  fi
+
   output=$(c8y users getUserByName --name "$username" 2>&1)
   if [[ $output == *"serverError"* ]]; then
-    echo "$output" >&2
     echo "Error: Created $username user with permission $role failed." >&2
     exit 1
   fi
