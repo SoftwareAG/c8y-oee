@@ -16,6 +16,18 @@ Example usage:
 EOF
 }
 
+# Define the function
+check_user_groups_availability() {
+  local user_group_list=("$@")
+  for user_group in "${user_group_list[@]}"; do
+    response=$(c8y usergroups getByName --name "$user_group" 2>&1)
+    if [[ $response == *"serverError"* ]]; then
+      echo "Error: User group $user_group does not exist. User will not be created." >&2
+      exit 1
+    fi
+  done
+}
+
 # Parse command-line options
 REST_ARGS=()
 while [ $# -gt 0 ]; do
@@ -124,14 +136,20 @@ if [ -z "$c8y_User" ]; then
   echo "$username user was not detected, creating $username user."
 
   if [ "$role" == "admin" ]; then
+    user_group_list=("OEE Admin" "business")
+    check_user_groups_availability "${user_group_list[@]}"
     response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
                 c8y userreferences addUserToGroup -f --group "business"   | \
                 c8y userreferences addUserToGroup -f --group "OEE Admin" 2>&1)
   elif [ "$role" == "reader" ]; then
+    user_group_list=("OEE Reader" "business")
+    check_user_groups_availability "${user_group_list[@]}"
     response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
                 c8y userreferences addUserToGroup -f --group "business"   | \
                 c8y userreferences addUserToGroup -f --group "OEE Reader" 2>&1)
   elif [ "$role" == "business" ]; then
+    user_group_list=("business")
+    check_user_groups_availability "${user_group_list[@]}"
     response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
                 c8y userreferences addUserToGroup -f --group "business" 2>&1)
   fi
