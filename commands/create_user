@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+
+help() {
+  cat <<EOF
+
+----------------------------------------------------------------------------------------------------------
+HELP MESSAGE:
+    Usage: c8y oee \\$(basename "$0") --username <username> --password <password> --email <email> --role <admin|reader|access>
+    Arguments:
+      -u, --username  USERNAME  The username for the new user (required)
+      -p, --password  PASSWORD  The password for the new user ( Password must have at least 8 characters and no more than 32 and must contain only Latin characters) (required)
+      -e, --email     EMAIL     The email for the new user (required)
+      -r, --role      ROLE      The role for the new user (admin, reader, or access) (required)
+      -h, --help                Show this help message and exit
+
+    Example usage:
+    Create a user with global roles "OEE Admin" and "business":
+        c8y oee \create_user --username abctest --password Password.123 --email dummy-oeeadmin@softwareag.com --role admin
+----------------------------------------------------------------------------------------------------------
+
+EOF
+}
+
+check_user_groups_availability() {
+  local user_group_list=("$@")
+  for user_group in "${user_group_list[@]}"; do
+    response=$(c8y usergroups getByName --name "$user_group" 2>&1)
+    if [[ $response == *"serverError"* ]]; then
+      echo "$response"
+      echo "Error: User group $user_group does not exist. User will not be created." >&2
+      exit 1
+    fi
+  done
+}
+
+# Parse command-line options
+REST_ARGS=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      help
+      exit 0
+      ;;
+    -u|-username|--username)
+      if [ $# -gt 1 ]; then
+        username=$2
+        shift
+      else
+        echo "Option $1 requires an argument." >&2
+        help
+        exit 1
+      fi
+      ;;
+    -p|-password|--password)
+      if [ $# -gt 1 ]; then
+        password=$2
+        shift
+      else
+        echo "Option $1 requires an argument." >&2
+        help
+        exit 1
+      fi
+      ;;
+    -e|-email|--email)
+      if [ $# -gt 1 ]; then
+        email=$2
+        shift
+      else
+        echo "Option $1 requires an argument." >&2
+        help
+        exit 1
+      fi
+      ;;
+    -r|-role|--role)
+      if [ $# -gt 1 ]; then
+        valid_roles=("admin" "reader" "business")
+        role_arg="$2"
+        # Check if the role argument is valid
+        valid_role=false
+        for valid_role_name in "${valid_roles[@]}"; do
+          if [[ "$valid_role_name" == "$role_arg" ]]; then
+            role="$role_arg"
+            valid_role=true
+            break
+          fi
+        done
+
+        if ! $valid_role; then
+          invalid_role_message="Error: invalid role '$role_arg'. Role must be one of: ${valid_roles[0]}"
+          for (( i=1; i<${#valid_roles[@]}; i++ )); do
+            invalid_role_message+=", ${valid_roles[$i]}"
+          done
+          echo "$invalid_role_message" >&2
+          exit 1
+        fi
+      else
+        echo "Option $1 requires an argument." >&2
+        help
+        exit 1
+      fi
+      ;;
+    *)
+      REST_ARGS+=("$1")
+      ;;
+  esac
+  shift
+done
+
+echo "URL       :  $C8Y_HOST"
+echo "Tenant ID :  $C8Y_TENANT"
+echo "User      :  $C8Y_USER"
+
+# Check that the required arguments are present
+missing_args=()
+if [[ -z $username ]]; then
+  missing_args+=(username)
+fi
+
+if [[ -z $password ]]; then
+  missing_args+=(password)
+fi
+
+if [[ -z $email ]]; then
+  missing_args+=(email)
+fi
+
+if [[ -z $role ]]; then
+  missing_args+=(role)
+fi
+
+if [[ ${#missing_args[@]} -gt 0 ]]; then
+  message="Error: Missing required arguments: ${missing_args[0]}"
+  for (( i=1; i<${#missing_args[@]}; i++ )); do
+    message+=", ${missing_args[$i]}"
+  done
+  echo "$message" >&2
+  help
+  exit 1
+fi
+
+set -- "${REST_ARGS[@]}"
+
+c8y_User=$(c8y users list --includeAll --username "$username" -o csv --select "id" -n)
+
+if [ -z "$c8y_User" ]; then
+  echo "$username user was not detected, creating $username user."
+
+  if [ "$role" == "admin" ]; then
+    user_group_list=("OEE Admin" "business")
+    check_user_groups_availability "${user_group_list[@]}"
+    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
+                c8y userreferences addUserToGroup -f --group "business"   | \
+                c8y userreferences addUserToGroup -f --group "OEE Admin" 2>&1)
+  elif [ "$role" == "reader" ]; then
+    user_group_list=("OEE Reader" "business")
+    check_user_groups_availability "${user_group_list[@]}"
+    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
+                c8y userreferences addUserToGroup -f --group "business"   | \
+                c8y userreferences addUserToGroup -f --group "OEE Reader" 2>&1)
+  elif [ "$role" == "business" ]; then
+    user_group_list=("business")
+    check_user_groups_availability "${user_group_list[@]}"
+    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
+                c8y userreferences addUserToGroup -f --group "business" 2>&1)
+  fi
+
+  # Check response if there is error
+  if [[ $response == *"serverError"* ]]; then
+    echo "$response" >&2
+  fi
+
+  output=$(c8y users getUserByName --name "$username" 2>&1)
+  if [[ $output == *"serverError"* ]]; then
+    echo "Error: Created $username user with permission $role failed." >&2
+    exit 1
+  fi
+
+  echo "Created $username user with permission $role successfully"
+
+else
+  echo "$username user is already exist on tenant $C8Y_HOST."
+fi
