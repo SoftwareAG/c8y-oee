@@ -35,6 +35,13 @@ commands:
     description: Create profile
     method: POST
     path: service/oee-bundle/configurationmanager/2/configuration
+    exampleList:
+      - description: Syntax to create OEE profile
+        command: c8y oee profiles create --deviceId [device-id] --name [oee-profile-name]
+
+      - description: Create a new OEE profile named "testing" for device with ID 12345 by using profile.jsonnet template in templates directory and make change to some fields
+        command: c8y oee profiles create --template oee::profile.jsonnet --deviceId 12345 --name testing --type MACHINE --status INACTIVE
+
     body:
       - name: type
         type: string
@@ -43,6 +50,143 @@ commands:
         validationSet:
           - "MACHINE"
           - "LINE"
+      
+      - name: deviceId
+        type: string
+        description: ID of device used for OEE calculation ----------> (**REQUIRED**)
+        required: true
+          
+      - name: name
+        type: string
+        description: Name of oee profile ----------> (**REQUIRED**)
+        required: true
+
+      - name: tenantId
+        type: string
+        description: tenant ID
+
+      - name: locationId
+        type: string
+        description: Name of shiftplan
+        default: " "
+
+      - name: status
+        type: string
+        description: Status of the Profile
+        default: ACTIVE
+        validationSet:
+          - "INACTIVE"
+          - "ACTIVE"
+          - "INCOMPLETE"
+
+      - name: availability
+        type: integer
+        property: oeeTargets.availability
+        description: OEE target availability
+
+      - name: performance
+        type: integer
+        property: oeeTargets.performance
+        description: OEE target performance
+
+      - name: overall
+        type: integer
+        property: oeeTargets.overall
+        description: OEE target overall
+      
+      - name: quality
+        type: integer
+        property: oeeTargets.quality
+        description: OEE target quality
+
+    bodyTemplates:
+      - type: jsonnet
+        template: |
+          {
+            "amountUnit": "",
+            "subscriptions": [
+              {
+                "type": "event",
+                "name": "Piece_Ok",
+                "deviceId": null,
+                "pollingIntervalSeconds": 10,
+                "key": "event.Piece_Ok"
+              },
+              {
+                "type": "event",
+                "name": "Piece_Produced",
+                "deviceId": null,
+                "pollingIntervalSeconds": 10,
+                "key": "event.Piece_Produced"
+              },
+              {
+                "type": "event",
+                "name": "Availability",
+                "deviceId": null,
+                "pollingIntervalSeconds": 10,
+                "key": "event.Availability"
+              }
+            ],
+            "inputs": {
+              "ActualQualityAmount": [
+                {
+                  "type": "TRANSFORMATION_RULE",
+                  "value": "countEvents(\"75273047\",\"Piece_Ok\")"
+                }
+              ],
+              "ActualProductionAmount": [
+                {
+                  "type": "TRANSFORMATION_RULE",
+                  "value": "countEvents(\"75273047\",\"Piece_Produced\")"
+                }
+              ],
+              "ActualProductionTime": [
+                {
+                  "type": "MACHINE_EVENT",
+                  "value": ""
+                }
+              ]
+            },
+            "machineEvents": {
+              "MACHINE_STATUS": [
+                {
+                  "value": "evt(\"75273047\",\"Availability\",\"status\",false) = \"up\""
+                }
+              ],
+              "QUALITY_STATUS": []
+            },
+            "oeeTargets": {
+              "performance": 90,
+              "overall": 60,
+              "availability": 90,
+              "quality": 80
+            },
+            "workpiece": {
+              "amount": "25",
+              "unit": "pcs",
+              "name": "Pieces",
+              "isActive": true,
+              "timeunit": 2
+            },
+            "timeframes": null,
+            "ui": {
+              "shortStoppages": "Not Tracked",
+              "correlationSectionVisited": true,
+              "computation": "PPQ",
+              "shortStoppagesAmount": null
+            },
+            "intervals": [
+              600,
+              1800,
+              3600
+            ],
+            "testConfiguration": false,
+            "external": false,
+            "idealCycleAmount": "",
+            "alarms": [],
+            "shortShutdowns": null,
+            "version": "2.0.0"
+          }
 
   - name: update
     description: Update profile
