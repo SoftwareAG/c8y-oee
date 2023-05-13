@@ -12,7 +12,7 @@ commands:
     path: service/oee-bundle/supportedmessages/{device}/{category}
     pathParameters:
       - name: device
-        type: '[]device'
+        type: device[]
         description: Device
         pipeline: true
 

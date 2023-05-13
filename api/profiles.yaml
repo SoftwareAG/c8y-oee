@@ -67,7 +67,7 @@ commands:
           - LINE
 
       - name: deviceId
-        type: '[]device'
+        type: device[]
         description: Device ID
 
       - name: tenantId
