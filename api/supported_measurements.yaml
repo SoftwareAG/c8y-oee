@@ -12,6 +12,6 @@ commands:
     path: service/oee-bundle/supportedmeasurements/{device}
     pathParameters:
       - name: device
-        type: '[]device'
+        type: device[]
         description: Device
         pipeline: true
