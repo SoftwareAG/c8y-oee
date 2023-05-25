@@ -5,17 +5,17 @@ help() {
 
 ----------------------------------------------------------------------------------------------------------
 HELP MESSAGE:
-    Usage: c8y oee \\$(basename "$0") --username <username> --password <password> --email <email> --role <admin|reader|access>
+    Usage: c8y oee $(basename "$0") --username <username> --password <password> --email <email> --role <admin|reader|business>
     Arguments:
       -u, --username  USERNAME  The username for the new user (required)
       -p, --password  PASSWORD  The password for the new user ( Password must have at least 8 characters and no more than 32 and must contain only Latin characters) (required)
       -e, --email     EMAIL     The email for the new user (required)
-      -r, --role      ROLE      The role for the new user (admin, reader, or access) (required)
+      -r, --role      ROLE      The role for the new user (admin, reader, or business) (required)
       -h, --help                Show this help message and exit
 
     Example usage:
     Create a user with global roles "OEE Admin" and "business":
-        c8y oee \create_user --username abctest --password Password.123 --email dummy-oeeadmin@softwareag.com --role admin
+        c8y oee create_user --username abctest --password Password.123 --email dummy-oeeadmin@softwareag.com --role admin
 ----------------------------------------------------------------------------------------------------------
 
 EOF
@@ -105,6 +105,7 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
+set -- "${REST_ARGS[@]}"
 
 echo "URL       :  $C8Y_HOST"
 echo "Tenant ID :  $C8Y_TENANT"
@@ -138,8 +139,6 @@ if [[ ${#missing_args[@]} -gt 0 ]]; then
   exit 1
 fi
 
-set -- "${REST_ARGS[@]}"
-
 c8y_User=$(c8y users list --includeAll --username "$username" -o csv --select "id" -n)
 
 if [ -z "$c8y_User" ]; then
@@ -148,20 +147,20 @@ if [ -z "$c8y_User" ]; then
   if [ "$role" == "admin" ]; then
     user_group_list=("OEE Admin" "business")
     check_user_groups_availability "${user_group_list[@]}"
-    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
-                c8y userreferences addUserToGroup -f --group "business"   | \
-                c8y userreferences addUserToGroup -f --group "OEE Admin" 2>&1)
+    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" "$@" | \
+                c8y userreferences addUserToGroup -f --group "business" "$@"   | \
+                c8y userreferences addUserToGroup -f --group "OEE Admin" "$@" 2>&1)
   elif [ "$role" == "reader" ]; then
     user_group_list=("OEE Reader" "business")
     check_user_groups_availability "${user_group_list[@]}"
-    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
-                c8y userreferences addUserToGroup -f --group "business"   | \
-                c8y userreferences addUserToGroup -f --group "OEE Reader" 2>&1)
+    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" "$@" | \
+                c8y userreferences addUserToGroup -f --group "business" "$@"  | \
+                c8y userreferences addUserToGroup -f --group "OEE Reader" "$@" 2>&1)
   elif [ "$role" == "business" ]; then
     user_group_list=("business")
     check_user_groups_availability "${user_group_list[@]}"
-    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" | \
-                c8y userreferences addUserToGroup -f --group "business" 2>&1)
+    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" "$@" | \
+                c8y userreferences addUserToGroup -f --group "business" "$@" 2>&1)
   fi
 
   # Check response if there is error
@@ -169,7 +168,7 @@ if [ -z "$c8y_User" ]; then
     echo "$response" >&2
   fi
 
-  output=$(c8y users getUserByName --name "$username" 2>&1)
+  output=$(c8y users getUserByName --name "$username" "$@" 2>&1)
   if [[ $output == *"serverError"* ]]; then
     echo "Error: Created $username user with permission $role failed." >&2
     exit 1

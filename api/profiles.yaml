@@ -189,6 +189,7 @@ commands:
           }
 
   - name: update
+    skip: true
     description: Update profile
     descriptionLong: Update
     method: PUT

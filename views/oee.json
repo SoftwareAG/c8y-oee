@@ -12,7 +12,7 @@
                 "locationId",
                 "type",
                 "status",
-                "entityID:deviceId"
+                "deviceId"
             ]
         },
         {
