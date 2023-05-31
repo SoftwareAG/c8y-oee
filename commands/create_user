@@ -81,6 +81,7 @@ while [ $# -gt 0 ]; do
           if [[ "$valid_role_name" == "$role_arg" ]]; then
             role="$role_arg"
             valid_role=true
+            shift
             break
           fi
         done
@@ -139,43 +140,45 @@ if [[ ${#missing_args[@]} -gt 0 ]]; then
   exit 1
 fi
 
-c8y_User=$(c8y users list --includeAll --username "$username" -o csv --select "id" -n)
+c8y_User=$(c8y users get --id "$username" 2>&1)
 
-if [ -z "$c8y_User" ]; then
-  echo "$username user was not detected, creating $username user."
-
-  if [ "$role" == "admin" ]; then
-    user_group_list=("OEE Admin" "business")
-    check_user_groups_availability "${user_group_list[@]}"
-    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" "$@" | \
-                c8y userreferences addUserToGroup -f --group "business" "$@"   | \
-                c8y userreferences addUserToGroup -f --group "OEE Admin" "$@" 2>&1)
-  elif [ "$role" == "reader" ]; then
-    user_group_list=("OEE Reader" "business")
-    check_user_groups_availability "${user_group_list[@]}"
-    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" "$@" | \
-                c8y userreferences addUserToGroup -f --group "business" "$@"  | \
-                c8y userreferences addUserToGroup -f --group "OEE Reader" "$@" 2>&1)
-  elif [ "$role" == "business" ]; then
-    user_group_list=("business")
-    check_user_groups_availability "${user_group_list[@]}"
-    response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" "$@" | \
-                c8y userreferences addUserToGroup -f --group "business" "$@" 2>&1)
-  fi
-
-  # Check response if there is error
-  if [[ $response == *"serverError"* ]]; then
-    echo "$response" >&2
-  fi
-
-  output=$(c8y users getUserByName --name "$username" "$@" 2>&1)
-  if [[ $output == *"serverError"* ]]; then
-    echo "Error: Created $username user with permission $role failed." >&2
-    exit 1
-  fi
-
-  echo "Created $username user with permission $role successfully"
-
-else
-  echo "$username user is already exist on tenant $C8Y_HOST."
+if [ -n "$c8y_User" ] && ! [[ "$c8y_User" == *"Error retrieving user"* ]]; then
+  echo "$username user already exists on tenant $C8Y_HOST."
+  exit 0
 fi
+
+echo "$username user was not detected, creating $username user."
+
+if [ "$role" == "admin" ]; then
+  user_group_list=("OEE Admin" "business")
+  check_user_groups_availability "${user_group_list[@]}"
+  response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" "$@" | \
+              c8y userreferences addUserToGroup -f --group "business" "$@"   | \
+              c8y userreferences addUserToGroup -f --group "OEE Admin" "$@" 2>&1)
+elif [ "$role" == "reader" ]; then
+  user_group_list=("OEE Reader" "business")
+  check_user_groups_availability "${user_group_list[@]}"
+  response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" "$@" | \
+              c8y userreferences addUserToGroup -f --group "business" "$@"  | \
+              c8y userreferences addUserToGroup -f --group "OEE Reader" "$@" 2>&1)
+elif [ "$role" == "business" ]; then
+  user_group_list=("business")
+  check_user_groups_availability "${user_group_list[@]}"
+  response=$(c8y users create -f -n --userName "$username" --password "$password" --email "$email" "$@" | \
+              c8y userreferences addUserToGroup -f --group "business" "$@" 2>&1)
+fi
+
+# Check response if there is error
+if [[ $response == *"serverError"* ]]; then
+  echo "$response" >&2
+  exit 1
+fi
+
+output=$(c8y users getUserByName --name "$username" "$@" 2>&1)
+if [[ $output == *"serverError"* ]]; then
+  echo "Error: Creating $username user with permission $role failed." >&2
+  exit 1
+fi
+
+echo "Created $username user with permission $role successfully"
+exit 0
