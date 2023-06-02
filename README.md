@@ -2,7 +2,7 @@
 
 # c8y-oee
 
-go-c8y-cli extension to provide commands for the OEE app.
+[go-c8y-cli](https://github.com/reubenmiller/go-c8y-cli) extension to provide commands for the Cumulocity IoT OEE app.
 
 Checkout the [go-c8y-cli extension docs](https://goc8ycli.netlify.app/docs/concepts/extensions/) for detailed information about go-c8y-cli extensions.
 
