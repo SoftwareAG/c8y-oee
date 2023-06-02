@@ -4,7 +4,7 @@
 
 go-c8y-cli extension to provide commands for the OEE app.
 
-Checkout the [go-c8y-cli extension docs](https://feat-extensions-manager--goc8ycli.netlify.app/docs/tutorials/extensions/creating-an-extension/) for detailed instruction about using go-c8y-cli extension.
+Checkout the [go-c8y-cli extension docs](https://goc8ycli.netlify.app/docs/concepts/extensions/) for detailed information about go-c8y-cli extensions.
 
 Checkout the [Official OEE API Documentation](https://cumulocity.com/api/oee) for more details.
 
@@ -19,10 +19,7 @@ Checkout the [Official OEE API Documentation](https://cumulocity.com/api/oee) fo
 
 ## Pre-requisite
 
-:rotating_light: Warning :rotating_light:
-
-Checkout the installation instructions via the [online docs](https://feat-extensions-manager--goc8ycli.netlify.app/docs/tutorials/extensions/creating-an-extension/).
-
+This requires the [go-c8y-cli](https://github.com/reubenmiller/go-c8y-cli/releases) version 2.31.0 or newer.
 
 ## Install
 
