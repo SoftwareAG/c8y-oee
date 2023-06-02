@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/v2/tools/schema/extensionCommands.json
+---
+group:
+  name: supportedseries
+  description: OEE supported series
+
+commands:
+  - name: list
+    description: Get all supported series for the device
+    descriptionLong: This service will take the deviceId as input and return the all supported series descriptors.
+    method: GET
+    path: service/oee-bundle/supportedseries/{device}?dateFrom={dateFrom}&dateTo={dateTo}
+    exampleList:
+      - command: c8y oee supportedseries list --device 12345 --dateFrom 1996-03-01T22:52:50.493Z --dateTo 1996-03-01T23:52:50.493Z
+        description: Get support series for device with id 12345 within period from 1996-03-01T22:52:50.493Z to 1996-03-01T23:52:50.493Z
+    pathParameters:
+      - name: device
+        type: device[]
+        description: Device id/name
+        pipeline: true
+        required: true
+
+      - name: dateFrom
+        type: datetime
+        description: The beginning time to check the availability of series support
+        required: true
+
+      - name: dateTo
+        type: datetime
+        description: The end time to check the availability of series support
+        required: true

@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/v2/tools/schema/extensionCommands.json
+---
+group:
+  name: license
+  description: OEE license management
+commands:
+  - name: info
+    description: Get license info
+    descriptionLong: Get license status and expiration date
+    method: GET
+    path: service/apama-oeeapp/mon/info/license
+    exampleList:
+      - description: Get license info
+        command: c8y oee license info
+    accept: 'application/json'
+    hidden: true
+    flagMapping:
+      pageSize: #If the value is empty, then the `pageSize` query parameter will be ignored
+
+  - name: install
+    description: Install APAMA license
+    descriptionLong: Install a new APAMA license. The APAMA license is an XML file provided by Software AG.
+    method: PUT
+    path: tenant/options/apama/credentials.license
+    exampleList:
+      - description: install license for OEE APAMA
+        command: c8y oee license install --file "C:\path\to\license\file\CumulocityIOTOOELicense1010.xml"
+      - description: install license for OEE APAMA via a literal string
+        command: c8y oee license install --string "my literal license string"
+    body:
+      - name: file
+        type: fileContentsAsString
+        description: License file
+        property: contents
+
+      - name: string
+        type: string
+        description: License string
+        property: contents
+
+    bodyTemplates:
+      - type: jsonnet
+        template: | 
+          // Loop over fromArray (of strings), running std.stdReplace() 
+          local strReplaceMany(str, fromArray, to) = std.foldl(
+            function(retStr, from) std.strReplace(retStr, from, to), 
+            fromArray, 
+            str 
+          ); 
+          
+          { // Use .contents as a temporary field which is written to by both flags 
+            // but we don't want .contents appearing in the body (so it :: hides it in jsonnet language) 
+            contents:: null, 
+            // Reference .contents to get the current flag value (either set via --flag or --string) 
+            value: std.stripChars( 
+                      strReplaceMany($.contents, ['\r', '\n'], '') 
+                    , '\"' 
+                  ), 
+          }

@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/views.json",
+    "$schema": "https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/v2/tools/schema/views.json",
     "version": "1",
     "definitions": [
         {
@@ -12,7 +12,7 @@
                 "locationId",
                 "type",
                 "status",
-                "entityID:deviceId"
+                "deviceId"
             ]
         },
         {

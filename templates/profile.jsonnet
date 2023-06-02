@@ -1,7 +1,7 @@
 {
-  "name": "Simulator Hi Frequency Availability - 1",
+  "name": "Testing profile",
+  "locationId":"",
   "amountUnit": "",
-  "locationId": "Matrix",
   "subscriptions": [
     {
       "type": "event",

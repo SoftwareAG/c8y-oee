@@ -1,0 +1,248 @@
+#!/usr/bin/env bash
+help() {
+  cat <<EOF
+
+----------------------------------------------------------------------------------------------------------
+HELP MESSAGE:
+
+    Usage: c8y oee $(basename "$0") [--output <json|table|csv|csvheader>] [--select <keys-list>] [--help]
+
+    Arguments:
+      -o, --output        print-format      The printing format for data (json, table, csv w/o header) (default: table)
+      -s, --select        keys-list         Data to show (default: show all data) (run the script to see the list of key to use)
+      -h, --help                            Show this help message
+
+    Example usage:
+
+    Check license info with selected licenseStatus, licenseExpiration data and output in json format:
+        c8y oee license_info -o json -s 'licenseStatus, licenseExpiration'
+----------------------------------------------------------------------------------------------------------
+
+EOF
+}
+# Set default printed format
+table_format=true
+json_format=false
+csv_format=false
+csv_header=false
+
+# Parse command-line options
+REST_ARGS=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      help
+      exit 0
+      ;;
+
+    -o|--output|-output)
+      if [ $# -gt 1 ]; then
+        if [ "$2" = "table" ]; then
+          table_format=true
+
+        elif [ "$2" = "json" ]; then
+          table_format=false
+          json_format=true
+
+        elif [ "$2" = "csv" ]; then
+          table_format=false
+          csv_format=true
+
+        elif [ "$2" = "csvheader" ]; then
+          table_format=false
+          csv_format=true
+          csv_header=true
+
+        else
+          echo "Invalid argument: $2" >&2
+          help
+          exit 1
+        fi
+        shift
+      else
+        echo "Option $1 requires an argument." >&2
+        help
+        exit 1
+      fi
+      ;;
+
+    -s|--select|-select)
+      if [ $# -gt 1 ]; then
+        chosen_keys="$2"
+      else
+        echo "Option $1 requires an argument." >&2
+        help
+        exit 1
+      fi
+      ;;
+
+    *)
+      REST_ARGS+=("$1")
+      ;;
+  esac
+  shift
+done
+set -- "${REST_ARGS[@]}"
+
+response=$(c8y oee license info)
+
+if [[ $response == *"serverError"* || -z "$response" ]]; then
+  echo "Error: Can not get license info." >&2
+  exit 1
+fi
+
+# Remove leading/trailing white spaces
+input_json=$(echo "$response" | tr -d '[:space:]')
+# Remove line breaks
+input_json=$(echo "$input_json" | tr -d '\n')
+# Remove return
+input_json=$(echo "$input_json" | tr -d '\r')
+# Replace continuous opening and closing curly bracket with comma
+response_json=$(echo "$input_json" | sed 's/}{/,/g')
+
+# Remove curly braces and quotes from the JSON string
+table_json="${response_json//\{/}"
+table_json="${table_json//\}/}"
+table_json="${table_json//\"/}"
+
+# Split the string into an array using comma as the delimiter
+IFS="," read -r -a pairs <<< "$table_json"
+
+# Initialize arrays for keys and values
+keys=()
+values=()
+
+# Loop through the pairs and extract keys and values
+for pair in "${pairs[@]}"; do
+    IFS=":" read -r key value <<< "$pair"
+    keys+=("$key")
+
+    if [[ "$key" == "licenseExpiration" ]]; then
+        # Check if the value has the format "YYYY.MM.DDHH:MM"
+        if [[ "$value" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}[0-9]{2}:[0-9]{2}$ ]]; then
+            # Split the value into date and time components
+            date="${value:0:10}"
+            time="${value:10}"
+            # Modify the value to "YYYY.MM.DD-HH:MM"
+            value="$date-$time"
+        fi
+    fi
+
+    values+=("$value")
+done
+
+if [[ -n "$chosen_keys" ]]; then
+    # Set the IFS (Internal Field Separator) to comma
+    IFS=', ' read -r -a chosen_keys_array <<< "$chosen_keys"
+
+    # Create temporary arrays to store filtered keys and values
+    temp_keys=()
+    temp_values=()
+    # Array to store unknown keys
+    unknown_keys=()
+
+    # Loop through the keys to check for availability
+    for i in "${!keys[@]}"; do
+        key="${keys[$i]}"
+        value="${values[$i]}"
+
+        # Check if the key is in the chosen_keys_array
+        if [[ " ${chosen_keys_array[*]} " == *" $key "* ]]; then
+            # Add the key and value to the temporary arrays
+            temp_keys+=("$key")
+            temp_values+=("$value")
+        fi
+    done
+
+    # Loop through the keys in chosen_keys_array
+    for chosen_key in "${chosen_keys_array[@]}"; do
+      # Check if the key is already in temp_keys array
+      if [[ ! " ${temp_keys[*]} " == *" $chosen_key "* ]]; then
+        # Add the unknown key to the unknown_keys array
+        unknown_keys+=("$chosen_key")
+      fi
+    done
+
+    # Output the list of unknown keys
+    if [ ${#unknown_keys[@]} -gt 0 ]; then
+      joined_unknown_keys=$(printf "%s, " "${unknown_keys[@]}")
+      echo "Unknown selected keys: ${joined_unknown_keys%, }"
+    fi
+
+    # Assign the temporary arrays back to the original keys and values arrays
+    keys=("${temp_keys[@]}")
+    values=("${temp_values[@]}")
+fi
+
+
+# Remove the empty elements from the arrays
+keys=("${keys[@]}")
+values=("${values[@]}")
+
+
+if [[ "$table_format" == true ]]; then
+  # Find the length of the longest key
+  max_length=0
+  for key in "${keys[@]}"; do
+    length=${#key}
+    if (( length > max_length )); then
+      max_length=$length
+    fi
+  done
+
+  # Calculate the width of the table cells
+  cell_width=$((max_length + 3))
+
+  # Calculate the padding for aligning headers in the middle
+  padding=$(( (cell_width - 3) / 2 ))
+
+  # Print the table headers
+  printf "| %*s%-$(($cell_width - padding - 1))s | %*s%s%-$(($cell_width - padding - 5))s |\n" "$padding" "" "Key" "$padding" "" "Value"
+  printf "| %-${cell_width}s| %s |\n" "$(printf "%-${cell_width}s" "-" | tr ' ' '-')" "$(printf "%-${cell_width}s" "-" | tr ' ' '-')"
+
+  # Print the keys and values in a table format
+  for ((i=0; i<${#keys[@]}; i++)); do
+    printf "| %-$(($cell_width - 1))s | %-${cell_width}s |\n" "${keys[$i]}" "${values[$i]} "
+    printf "| %-${cell_width}s| %s |\n" "$(printf "%-${cell_width}s" "-" | tr ' ' '-')" "$(printf "%-${cell_width}s" "-" | tr ' ' '-')"
+  done
+
+fi
+
+if [[ "$csv_format" == true ]]; then
+  echo '----------------------------------------'
+  if [[ "$csv_header" == true ]]; then
+    # Output CSV headers
+    echo "Key,Value"
+  fi
+
+  # Loop through the keys and values
+  for i in "${!keys[@]}"; do
+      key="${keys[$i]}"
+      value="${values[$i]}"
+
+      # Output key-value pair in CSV format
+      echo "$key,$value"
+  done
+
+  echo '----------------------------------------'
+fi
+
+# Print the translated JSON
+if [[ "$json_format" == true ]]; then
+  # Convert keys and values into JSON
+  json_string="{"
+  for ((i=0; i<${#keys[@]}; i++)); do
+      key="${keys[$i]}"
+      value="${values[$i]}"
+      json_string+="\"$key\":\"$value\""
+
+      if ((i < ${#temp_keys[@]}-1)); then
+          json_string+=","
+      fi
+  done
+  json_string+="}"
+
+  echo "$json_string"
+fi
+
+exit 0

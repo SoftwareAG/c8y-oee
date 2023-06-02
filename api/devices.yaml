@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/extensionCommands.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/v2/tools/schema/extensionCommands.json
 ---
 group:
   name: devices
@@ -31,6 +31,16 @@ commands:
     description: Get device collection
     method: GET
     path: inventory/managedObjects
+    exampleList:
+      - description: list all devices
+        command: c8y oee devices list
+      - description: list only simulator devices type=c8y_EventBasedSimulator
+        command: c8y oee devices list --type c8y_EventBasedSimulator --includeAll
+      - description: list simulator device that has name "Normal 1"
+        command:  c8y oee devices list --name "Normal 1" --includeAll
+      - description: list simulator devices that have "Normal" prefix in name
+        command: c8y oee devices list --name Normal* --includeAll
+
     queryParameters:
       - name: query
         property: q
@@ -47,6 +57,11 @@ commands:
             type: string
             description: Filter by type
             format: (type eq '%s')
+
+          - name: name
+            type: string
+            description: Filter by name
+            format: (name eq '%s')
 
           - name: orderBy
             type: string

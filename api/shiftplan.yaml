@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/extensionCommands.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/v2/tools/schema/extensionCommands.json
 ---
 group:
   name: shiftplan
@@ -7,7 +7,7 @@ group:
 commands:
   - name: get
     description: Get shiftplan
-    descriptionLong: Get the shift plan for a given location. Response is empty if no Shiftplan was supplied before via the putShiftplan method.
+    descriptionLong: Get the shift plan for a given location. Response is empty if no shiftplan was supplied before via the PUT shiftplan method.
     method: GET
     path: service/oee-bundle/mes/shiftplan/{id}
     collectionProperty: recurringTimeslots
@@ -28,6 +28,9 @@ commands:
     descriptionLong: Delete the Shiftplan for the given location
     method: DELETE
     path: service/oee-bundle/mes/shiftplan/{id}
+    exampleList:
+      - description: Delete the shiftplan for a specific location
+        command: c8y oee shiftplan delete --id OneShiftLocation
     pathParameters:
       - name: id
         type: string
