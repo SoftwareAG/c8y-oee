@@ -1,5 +1,3 @@
-**Note:** :construction: work in progress
-
 # c8y-oee
 
 [go-c8y-cli](https://github.com/reubenmiller/go-c8y-cli) extension to provide commands for the Cumulocity IoT OEE app.
