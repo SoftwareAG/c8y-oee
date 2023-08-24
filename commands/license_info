@@ -236,7 +236,8 @@ if [[ "$json_format" == true ]]; then
       value="${values[$i]}"
       json_string+="\"$key\":\"$value\""
 
-      if ((i < ${#temp_keys[@]}-1)); then
+      # Add a comma after every key-value pair except the last one
+      if ((i < ${#keys[@]}-1)); then
           json_string+=","
       fi
   done
