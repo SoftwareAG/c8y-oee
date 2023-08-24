@@ -26,7 +26,7 @@ This requires the [go-c8y-cli](https://github.com/reubenmiller/go-c8y-cli/releas
 The extension can be installed using the following command.
 
 ```sh
-c8y extension install reubenmiller/c8y-oee
+c8y extension install softwareag/c8y-oee
 
 # List the available commands
 c8y oee
