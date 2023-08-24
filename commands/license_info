@@ -209,7 +209,6 @@ if [[ "$table_format" == true ]]; then
 fi
 
 if [[ "$csv_format" == true ]]; then
-  echo '----------------------------------------'
   if [[ "$csv_header" == true ]]; then
     # Output CSV headers
     echo "Key,Value"
@@ -223,8 +222,6 @@ if [[ "$csv_format" == true ]]; then
       # Output key-value pair in CSV format
       echo "$key,$value"
   done
-
-  echo '----------------------------------------'
 fi
 
 # Print the translated JSON
