@@ -84,10 +84,10 @@ while [ $# -gt 0 ]; do
 done
 set -- "${REST_ARGS[@]}"
 
-response=$(c8y oee license info)
+response=$(c8y oee license info 2>/dev/null)
 
 if [[ $response == *"serverError"* || -z "$response" ]]; then
-  echo "Error: Can not get license info." >&2
+  echo "Error: License is invalid. Please install a new license!" >&2
   exit 1
 fi
 
